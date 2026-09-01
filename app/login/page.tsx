@@ -28,19 +28,44 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm p-6">
-      <h1 className="mb-6 text-2xl font-bold">Log In</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded border px-3 py-2" required />
-        <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded border px-3 py-2" required />
-        <button type="submit" disabled={submitting} className="w-full rounded bg-black py-2 text-white disabled:opacity-50">
-          {submitting ? 'Logging in...' : 'Log In'}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-gray-500">
-        No account? <Link href="/register" className="text-blue-600 underline">Register</Link>
-      </p>
-    </main>
+    <>
+      
+      <main className="mx-auto max-w-sm p-6">
+        <h1 className="mb-1 font-display text-2xl font-bold text-ink">Log In</h1>
+        <p className="mb-6 text-sm text-ink/50">Welcome back to Chipiku Plus.</p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="text-sm text-accent">{error}</p>}
+
+          <input
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-lg border border-tint px-3 py-2"
+            required
+          />
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-lg border border-tint px-3 py-2"
+            required
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-full bg-brand py-2.5 font-display font-semibold text-white hover:bg-[color:var(--color-brand-dark)] disabled:opacity-50"
+          >
+            {submitting ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-ink/50">
+          No account? <Link href="/register" className="font-semibold text-brand underline">Register</Link>
+        </p>
+      </main>
+    </>
   );
 }
