@@ -5,6 +5,7 @@ import { CartProvider } from '@/context/CartContext';
 import { SearchProvider } from '@/context/SearchContext';
 import SiteHeader from '@/components/SiteHeader';
 import SecondaryNav from '@/components/SecondaryNav';
+import SiteFooter from '@/components/SiteFooter';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -29,9 +30,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
              <SearchProvider>
-                <SiteHeader />
-                <SecondaryNav />
+                <div className="sticky top-0 z-50">
+                  <SiteHeader />
+                  <SecondaryNav />
+                </div>
                 {children}
+                <SiteFooter />
               </SearchProvider>
             </CartProvider>
         </AuthProvider>

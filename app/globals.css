@@ -13,6 +13,12 @@
   --font-body: var(--font-body);
 }
 
+@keyframes pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
 body {
   font-family: var(--font-body);
 }
