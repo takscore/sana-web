@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface User {
   id: string;
@@ -8,6 +9,13 @@ interface User {
   email: string;
   phone: string;
   role: string;
+  defaultAddress?: string | null;
+  defaultNotes?: string | null;
+  defaultBranchId?: string | null;
+  defaultLatitude?: string | null;
+  defaultLongitude?: string | null;
+  avatarUrl?: string | null;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -16,6 +24,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (fields: Partial<Pick<User, 'name' | 'email' | 'phone' | 'defaultAddress' | 'defaultNotes' | 'defaultBranchId' | 'defaultLatitude' | 'defaultLongitude'>>) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,6 +80,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession();
   }, []);
 
+  async function updateProfile(fields: Partial<Pick<User, 'name' | 'email' | 'phone' | 'defaultAddress' | 'defaultNotes' | 'defaultBranchId'>>) {
+    const updated = await apiFetch('/auth/me', { method: 'PATCH', body: JSON.stringify(fields) });
+    setUser(updated);
+  }
+
+  async function uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const updated = await apiFetch('/auth/avatar', { method: 'POST', body: formData });
+    setUser(updated);
+  }
+
+  async function deleteAccount() {
+    await apiFetch('/auth/me', { method: 'DELETE' });
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setUser(null);
+  }
+
+
   async function login(email: string, password: string) {
     const res = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
@@ -108,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, uploadAvatar, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

@@ -34,7 +34,7 @@ export default function FeatureCards() {
   ];
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-10">
+    <section id="feature-cards" className="mx-auto max-w-6xl scroll-mt-44 px-6 py-10">
       <div className="grid gap-5 sm:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;

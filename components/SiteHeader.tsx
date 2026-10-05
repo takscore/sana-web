@@ -4,15 +4,16 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, User, ShoppingCart, MapPin, HelpCircle, X } from 'lucide-react';
+import { Search, User, ShoppingCart, MapPin, HelpCircle, X, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSearch } from '@/context/SearchContext';
 
+
 export default function SiteHeader() {
-  const { items } = useCart();
+  const { items, openDrawer } = useCart();
   const { user } = useAuth();
-  const { setQuery, setCategoryId } = useSearch();
+  const { setQuery, setCategoryId, setSort } = useSearch();
   const router = useRouter();
   const [input, setInput] = useState('');
 
@@ -21,6 +22,7 @@ export default function SiteHeader() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setCategoryId('');
+    setSort('');
     setQuery(input);
     router.push('/');
   }
@@ -30,14 +32,20 @@ export default function SiteHeader() {
     setQuery('');
   }
 
+  function handleLogoClick() {
+  setCategoryId('');
+  setQuery('');
+  setSort('');
+}
+
   const iconLinkClass =
     'flex flex-col items-center text-white transition-transform duration-200 hover:-translate-y-0.5 hover:scale-110';
 
   return (
     <header className="bg-brand">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-4">
-        <Link href="/" className="shrink-0">
-          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={140} height={44} priority className="h-11 w-auto" />
+        <Link href="/" onClick={handleLogoClick} className="shrink-0">
+          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={140} height={44} priority/>
         </Link>
 
         <form onSubmit={handleSearch} className="order-3 w-full flex-1 sm:order-none sm:w-auto">
@@ -77,13 +85,17 @@ export default function SiteHeader() {
             <HelpCircle size={22} />
             <span className="font-display text-[11px] font-semibold">Help</span>
           </Link>
-          <Link href={user ? '/' : '/login'} className={iconLinkClass}>
+          <Link href={user ? '/account' : '/login'} className={iconLinkClass}>
             <User size={22} />
             <span className="font-display text-[11px] font-semibold">
               {user ? user.name.split(' ')[0] : 'Log In'}
             </span>
           </Link>
-          <Link href="/cart" className={`relative ${iconLinkClass}`}>
+          <Link href="/favourites" className={iconLinkClass}>
+            <Heart size={22} />
+            <span className="font-display text-[11px] font-semibold">Favourites</span>
+          </Link>
+          <button onClick={openDrawer} className={`relative ${iconLinkClass}`}>
             <ShoppingCart size={22} />
             {cartCount > 0 && (
               <span
@@ -94,7 +106,7 @@ export default function SiteHeader() {
               </span>
             )}
             <span className="font-display text-[11px] font-semibold">Cart</span>
-          </Link>
+          </button>
         </div>
       </div>
     </header>

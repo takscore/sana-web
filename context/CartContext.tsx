@@ -7,6 +7,7 @@ interface CartItem {
   name: string;
   price: number;
   unit: string;
+  imageUrl?: string | null;
   quantity: number;
 }
 
@@ -17,6 +18,9 @@ interface CartContextType {
   removeItem: (productId: string) => void;
   clearCart: () => void;
   subtotal: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -25,11 +29,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    function openDrawer() {
+      setIsDrawerOpen(true);
+    }
+
+    function closeDrawer() {
+      setIsDrawerOpen(false);
+    }
+
   // Load once on mount
   useEffect(() => {
     const stored = localStorage.getItem('cart');
     if (stored) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read from localStorage on mount, not a render loop
         setItems(JSON.parse(stored));
       } catch {
         // ignore corrupted data rather than crash
@@ -73,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clearCart, subtotal }}>
+    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clearCart, subtotal, isDrawerOpen, openDrawer, closeDrawer }}>
       {children}
     </CartContext.Provider>
   );

@@ -8,9 +8,16 @@
   --color-surface: #FFFFFF;
   --color-tint: #E9F1E7;
   --color-ink: #2B2B26;
+  --color-clearance: #1D4E89;
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+  --color-tint-green: #9ac9aa;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
 }
 
 @keyframes pop {

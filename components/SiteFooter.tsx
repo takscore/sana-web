@@ -1,8 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
+import { useSearch } from '@/context/SearchContext';
+import { scrollToFeatureCards } from '@/lib/scrollToFeatureCards';
+import { useAuth } from '@/context/AuthContext';
+
+interface Category { id: string; name: string; }
 
 function FacebookIcon({ size = 20 }: { size?: number }) {
   return (
@@ -22,13 +30,9 @@ function InstagramIcon({ size = 20 }: { size?: number }) {
   );
 }
 
-const shopLinks = [
-  { label: 'Groceries', href: '/' },
-  { label: 'Fresh & Chilled', href: '/' },
-  { label: 'Bakery', href: '/' },
-  { label: 'Household & Cleaning', href: '/' },
-  { label: 'Offers', href: '/offers' },
-];
+// These four must match your actual Category names in the database
+// so they resolve to the same categoryId the Category Strip / Secondary Nav use.
+const shopCategoryLabels = ['Groceries', 'Fresh & Chilled', 'Bakery', 'Household & Cleaning'];
 
 const helpLinks = [
   { label: 'Help Centre', href: '/help' },
@@ -38,20 +42,50 @@ const helpLinks = [
   { label: 'Give Feedback', href: '/feedback' },
 ];
 
+
+
+const footerLinkClass =
+  'inline-block bg-transparent border-0 p-0 text-left text-sm text-cream/70 transition-all duration-200 hover:scale-105 hover:text-white hover:[text-shadow:0_0_8px_rgba(255,255,255,0.7)]';
+
+const footerBottomLinkClass =
+  'inline-block transition-all duration-200 hover:scale-105 hover:text-white hover:[text-shadow:0_0_8px_rgba(255,255,255,0.7)]';
+
+export default function SiteFooter() {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { setQuery, setCategoryId, setSort } = useSearch();
+  const router = useRouter();
+  const { user } = useAuth();
+
 const accountLinks = [
-  { label: 'Login / Register', href: '/login' },
+  user ? { label: 'Profile', href: '/account' } : { label: 'Login / Register', href: '/login' },
   { label: 'My Orders', href: '/orders' },
   { label: 'Cart', href: '/cart' },
   { label: 'Favourites', href: '/favourites' },
 ];
 
-export default function SiteFooter() {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  useEffect(() => {
+    apiFetch('/categories').then(setCategories).catch(() => {});
+  }, []);
 
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     setSubscribed(true);
+  }
+
+  function handleCategoryClick(label: string) {
+    const match = categories.find((c) => c.name.toLowerCase() === label.toLowerCase());
+    setSort('');
+    if (match) {
+      setCategoryId(match.id);
+      setQuery('');
+    } else {
+      setCategoryId('');
+      setQuery(label);
+    }
+    router.push('/');
+    scrollToFeatureCards();
   }
 
   return (
@@ -72,7 +106,7 @@ export default function SiteFooter() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address"
-                className="w-full rounded-full px-4 py-2 text-sm text-ink outline-none"
+                className="w-full rounded-full border border-cream/40 bg-transparent px-4 py-2 text-sm text-cream outline-none placeholder:text-cream/60 focus:border-cream"
               />
               <button
                 type="submit"
@@ -88,7 +122,7 @@ export default function SiteFooter() {
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
-          <p className="font-display text-lg font-extrabold">CHiPiKU <span className="font-bold text-cream/90">PLUS</span></p>
+          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={140} height={44}/>
           <p className="mt-2 text-sm text-cream/70">Malawi&apos;s Home of Wholesale Savings.</p>
           <div className="mt-4 flex gap-3">
             <Link href="https://www.facebook.com/p/Chipiku-Plus-100046368596770/" aria-label="Facebook" className="transition-transform duration-200 hover:scale-110">
@@ -103,9 +137,14 @@ export default function SiteFooter() {
         <div>
           <p className="font-display text-sm font-bold uppercase tracking-wide text-cream/90">Shop</p>
           <ul className="mt-3 space-y-2">
-            {shopLinks.map((l) => (
-              <li key={l.label}><Link href={l.href} className="text-sm text-cream/70 hover:text-white">{l.label}</Link></li>
+            {shopCategoryLabels.map((label) => (
+              <li key={label}>
+                <button onClick={() => handleCategoryClick(label)} className={footerLinkClass}>
+                  {label}
+                </button>
+              </li>
             ))}
+            <li><Link href="/offers" className={footerLinkClass}>Offers</Link></li>
           </ul>
         </div>
 
@@ -113,16 +152,16 @@ export default function SiteFooter() {
           <p className="font-display text-sm font-bold uppercase tracking-wide text-cream/90">Help</p>
           <ul className="mt-3 space-y-2">
             {helpLinks.map((l) => (
-              <li key={l.label}><Link href={l.href} className="text-sm text-cream/70 hover:text-white">{l.label}</Link></li>
+              <li key={l.label}><Link href={l.href} className={footerLinkClass}>{l.label}</Link></li>
             ))}
           </ul>
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold uppercase tracking-wide text-cream/90">My Account</p>
+          <p className="font-display text-sm font-bold uppercase tracking-wide text-cream/90">Account</p>
           <ul className="mt-3 space-y-2">
             {accountLinks.map((l) => (
-              <li key={l.label}><Link href={l.href} className="text-sm text-cream/70 hover:text-white">{l.label}</Link></li>
+              <li key={l.label}><Link href={l.href} className={footerLinkClass}>{l.label}</Link></li>
             ))}
           </ul>
           <div className="mt-4 space-y-1.5 text-sm text-cream/70">
@@ -136,8 +175,9 @@ export default function SiteFooter() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-cream/60 sm:flex-row">
           <p>© {new Date().getFullYear()} Chipiku Plus. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" className={footerBottomLinkClass}>Terms of Service</Link>
+            <Link href="/privacy" className={footerBottomLinkClass}>Privacy Policy</Link>
+            <Link href="/cookies" className={footerBottomLinkClass}>Cookie Policy</Link>
           </div>
         </div>
       </div>

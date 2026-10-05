@@ -7,6 +7,8 @@ interface SearchContextType {
   setQuery: (q: string) => void;
   categoryId: string;
   setCategoryId: (id: string) => void;
+  sort: string;
+  setSort: (s: string) => void;
 }
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
@@ -14,8 +16,9 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [sort, setSort] = useState('');
   return (
-    <SearchContext.Provider value={{ query, setQuery, categoryId, setCategoryId }}>
+    <SearchContext.Provider value={{ query, setQuery, categoryId, setCategoryId, sort, setSort }}>
       {children}
     </SearchContext.Provider>
   );

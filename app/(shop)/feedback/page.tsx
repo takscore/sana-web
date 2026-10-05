@@ -42,7 +42,7 @@ export default function FeedbackPage() {
                 onMouseLeave={() => setHoverRating(0)}
                 aria-label={`Rate ${star} stars`}
               >
-                <Star size={28} className={star <= (hoverRating || rating) ? 'fill-accent text-accent' : 'text-tint'} />
+                <Star size={28} className={star <= (hoverRating || rating) ? 'fill-accent text-accent': 'fill-none text-[#C7D6C3]'} />
               </button>
             ))}
           </div>
@@ -53,7 +53,7 @@ export default function FeedbackPage() {
           onChange={(e) => setComment(e.target.value)}
           placeholder="Tell us more..."
           rows={5}
-          className="w-full rounded-lg border border-tint px-3 py-2"
+          className="w-full rounded-lg border border-[#C7D6C3] px-3 py-2 focus:border-[#1C5C38] focus:outline-none"
         />
 
         <button

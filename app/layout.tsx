@@ -3,9 +3,8 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { SearchProvider } from '@/context/SearchContext';
-import SiteHeader from '@/components/SiteHeader';
-import SecondaryNav from '@/components/SecondaryNav';
-import SiteFooter from '@/components/SiteFooter';
+import { FavoritesProvider } from '@/context/FavoritesContext';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -28,16 +27,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${poppins.variable} ${inter.variable} font-body bg-cream text-ink antialiased`}>
         <AuthProvider>
-          <CartProvider>
-             <SearchProvider>
-                <div className="sticky top-0 z-50">
-                  <SiteHeader />
-                  <SecondaryNav />
-                </div>
+          <FavoritesProvider>
+            <CartProvider>
+              <SearchProvider>
                 {children}
-                <SiteFooter />
+                <CookieConsentBanner />
               </SearchProvider>
             </CartProvider>
+          </FavoritesProvider>
         </AuthProvider>
       </body>
     </html>

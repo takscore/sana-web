@@ -17,11 +17,13 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
+  const isFormData = options.body instanceof FormData;
+
   const doFetch = (token: string | null) =>
     fetch(`${API_URL}${path}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
@@ -30,8 +32,6 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   let res = await doFetch(accessToken);
 
-  // Retry with a refreshed token whenever we get a 401 — whether the
-  // original access token was expired, invalid, or simply missing.
   if (res.status === 401) {
     const newToken = await refreshAccessToken();
     if (newToken) {

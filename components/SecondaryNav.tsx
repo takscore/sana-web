@@ -1,42 +1,73 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/api';
 import { useSearch } from '@/context/SearchContext';
+import { scrollToFeatureCards } from '@/lib/scrollToFeatureCards';
+
+interface Category { id: string; name: string; }
 
 const links = [
-  { label: 'New', href: '/?sort=new' },
   { label: 'Offers', href: '/offers' },
   { label: 'Coupons', href: '/coupons' },
   { label: 'Recipes', href: '/recipes' },
   { label: 'Favourites', href: '/favourites' },
+  { label: 'My Orders', href: '/orders' },
 ];
 
-const categoryMenu = [
+const categoryMenu: { label: string; subcategories?: string[] }[] = [
+  { label: 'Groceries', subcategories: ['Pantry Staples', 'Rice & Grains', 'Cooking Oil', 'Sugar & Sweeteners', 'Flour & Baking Supplies', 'Canned & Tinned Goods', 'Pasta & Noodles', 'Sauces & Condiments'] },
+  { label: 'Fresh & Chilled', subcategories: ['Fruits & Vegetables', 'Dairy & Eggs', 'Meat & Poultry', 'Fish & Seafood', 'Cheese', 'Deli & Cold Meats', 'Ready Meals'] },
+  { label: 'Bakery', subcategories: ['Bread & Rolls', 'Cakes & Pastries', 'Pies & Sausage Rolls', 'Bakery Snacks'] },
+  { label: 'Frozen Foods', subcategories: ['Frozen Vegetables', 'Frozen Meat & Poultry', 'Frozen Fish & Seafood', 'Ice Cream & Desserts', 'Frozen Ready Meals'] },
+  { label: 'Beverages', subcategories: ['Soft Drinks', 'Juices', 'Water', 'Tea & Coffee', 'Energy & Sports Drinks'] },
+  { label: 'Beer, Wine & Spirits', subcategories: ['Beer & Cider', 'Wine', 'Spirits & Liqueurs', 'Ready-to-Drink'] },
+  { label: 'Snacks & Confectionery', subcategories: ['Sweets & Chocolates', 'Chips & Crisps', 'Biscuits & Cookies', 'Nuts & Dried Fruit'] },
+  { label: 'Beauty & Toiletries', subcategories: ['Skincare', 'Haircare', 'Oral Care', 'Personal Hygiene', 'Fragrances', "Men's Grooming"] },
+  { label: 'Baby & Toddler', subcategories: ['Nappies & Wipes', 'Baby Food & Formula', 'Baby Care', 'Toys & Accessories'] },
+  { label: 'Household & Cleaning', subcategories: ['Laundry Care', 'Dishwashing', 'Surface Cleaners', 'Air Fresheners', 'Paper & Disposables'] },
+  { label: 'Pets', subcategories: ['Dog Food & Treats', 'Cat Food & Treats', 'Pet Accessories'] },
+  { label: 'Home & Garden', subcategories: ['Kitchenware', 'Garden Tools', 'Storage & Organisation', 'Outdoor Living'] },
+  { label: 'Occasion & Entertaining', subcategories: ['Party Supplies', 'Gift Sets', 'Candles & Décor'] },
   { label: 'New & Trending' },
-  { label: 'Fresh & Chilled', subcategories: ['Fruits & Vegetables', 'Dairy & Eggs', 'Meat & Poultry', 'Fish & Seafood'] },
-  { label: 'Treats & Snacks', subcategories: ['Sweets & Chocolates', 'Chips & Crisps', 'Biscuits & Cookies'] },
-  { label: 'Bakery' },
-  { label: 'Frozen Food' },
-  { label: 'Soft Drinks & Tea', subcategories: ['Soft Drinks', 'Tea & Coffee', 'Juice'] },
-  { label: 'Beer, Wine & Spirits' },
-  { label: 'Beauty & Toiletries', subcategories: ['Skincare', 'Haircare', 'Oral Care'] },
-  { label: 'Baby & Toddlers' },
-  { label: 'Household & Cleaning' },
-  { label: 'Pets' },
-  { label: 'Home & Garden' },
-  { label: 'Occasion & Entertaining' },
 ];
 
 export default function SecondaryNav() {
-  const { setQuery, setCategoryId } = useSearch();
+  const { setQuery, setCategoryId, setSort } = useSearch();
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  function handleCategoryClick(name: string) {
+  useEffect(() => {
+    apiFetch('/categories').then(setCategories).catch(() => {});
+  }, []);
+
+  function handleNewClick() {
     setCategoryId('');
-    setQuery(name);
+    setQuery('');
+    setSort('new');
     router.push('/');
+    scrollToFeatureCards();
+  }
+
+  function handleCategoryClick(label: string) {
+    if (label === 'New & Trending') {
+      handleNewClick();
+      return;
+    }
+    const match = categories.find((c) => c.name.toLowerCase() === label.toLowerCase());
+    setSort('');
+    if (match) {
+      setCategoryId(match.id);
+      setQuery('');
+    } else {
+      setCategoryId('');
+      setQuery(label);
+    }
+    router.push('/');
+    scrollToFeatureCards();
   }
 
   const linkClass =
@@ -50,8 +81,8 @@ export default function SecondaryNav() {
             Browse Groceries <ChevronDown size={14} />
           </Link>
 
-          <div className="invisible absolute left-0 top-full z-50 w-[640px] translate-y-2 rounded-xl bg-surface p-6 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-            <div className="grid grid-cols-3 gap-5">
+          <div className="absolute left-0 top-full z-50 hidden max-h-[75vh] w-[min(880px,90vw)] overflow-y-auto rounded-xl bg-surface p-6 shadow-lg group-hover:block">
+            <div className="grid grid-cols-4 gap-5">
               {categoryMenu.map((cat) => (
                 <div key={cat.label}>
                   <button
@@ -79,6 +110,8 @@ export default function SecondaryNav() {
             </div>
           </div>
         </div>
+
+        <button onClick={handleNewClick} className={linkClass}>New</button>
 
         {links.map((l) => (
           <Link key={l.label} href={l.href} className={linkClass}>

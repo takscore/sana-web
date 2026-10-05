@@ -1,10 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone, Clock, PackageCheck } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
-interface Branch { id: string; name: string; address: string; phone: string | null; }
+interface Branch {
+  id: string;
+  name: string;
+  address: string;
+  phone: string | null;
+  operatingHours: string | null;
+  pickupInstructions: string | null;
+}
 
 export default function StoresPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -32,6 +39,16 @@ export default function StoresPage() {
               {b.phone && (
                 <p className="mt-1 flex items-center gap-2 text-sm text-ink/60">
                   <Phone size={14} /> {b.phone}
+                </p>
+              )}
+              {b.operatingHours && (
+                <p className="mt-1 flex items-center gap-2 text-sm text-ink/60">
+                  <Clock size={14} /> {b.operatingHours}
+                </p>
+              )}
+              {b.pickupInstructions && (
+                <p className="mt-1 flex items-start gap-2 text-sm text-ink/50">
+                  <PackageCheck size={14} className="mt-0.5 shrink-0" /> {b.pickupInstructions}
                 </p>
               )}
             </div>
