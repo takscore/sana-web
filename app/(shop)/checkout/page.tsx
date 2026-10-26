@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Clock, Phone, PackageCheck, PencilLine } from 'lucide-react';
@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth();
 
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState(true);
   const [branchId, setBranchId] = useState('');
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -35,6 +36,8 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [deliveryLatitude, setDeliveryLatitude] = useState<number | null>(null);
   const [deliveryLongitude, setDeliveryLongitude] = useState<number | null>(null);
+  const [termsError, setTermsError] = useState(false);
+  const termsRef = useRef<HTMLDivElement>(null);
 
   function handleMapSelect(lat: number, lng: number, address: string) {
     setDeliveryLatitude(lat);
@@ -43,8 +46,17 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
-    apiFetch('/branches').then(setBranches).catch(() => setError('Failed to load branches'));
+    apiFetch('/branches')
+      .then(setBranches)
+      .catch(() => setError('Failed to load branches'))
+      .finally(() => setBranchesLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (termsError) {
+      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [termsError]);
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- one-time pre-fill of checkout fields from the user's saved profile, guarded against overwriting typed input, not a render loop */
@@ -66,10 +78,14 @@ export default function CheckoutPage() {
   async function handlePlaceOrder(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setTermsError(false);
 
     if (!branchId) return setError('Please select a branch');
     if (deliveryType === 'delivery' && !deliveryAddress) return setError('Please enter a delivery address');
-    if (!agreedToTerms) return setError('Please agree to the Terms of Service to continue');
+    if (!agreedToTerms) {
+      setTermsError(true);
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -159,7 +175,18 @@ export default function CheckoutPage() {
                 <span>MWK {(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
-            <div className="mt-2 space-y-1 border-t border-tint pt-2 text-sm">
+
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Promo code"
+                disabled
+                className="flex-1 rounded-lg border border-tint bg-surface px-3 py-2 text-sm text-ink/40 placeholder:text-ink/40"
+              />
+              <span className="shrink-0 rounded-full bg-tint px-3 py-1 text-xs font-semibold text-ink/50">Coming Soon</span>
+            </div>
+
+            <div className="mt-3 space-y-1 border-t border-tint pt-2 text-sm">
               <div className="flex justify-between text-ink/70">
                 <span>Subtotal</span>
                 <span>MWK {subtotal.toFixed(2)}</span>
@@ -179,15 +206,19 @@ export default function CheckoutPage() {
           <form onSubmit={handlePlaceOrder} className="space-y-4">
             {error && <p className="text-sm text-accent">{error}</p>}
 
-            <select
-              value={branchId}
-              onChange={(e) => setBranchId(e.target.value)}
-              className="w-full rounded-lg border border-tint px-3 py-2"
-              required
-            >
-              <option value="">Select branch</option>
-              {branches.map((b) => <option key={b.id} value={b.id}>{b.name} — {b.address}</option>)}
-            </select>
+            {branchesLoading ? (
+              <div className="h-[42px] w-full animate-pulse rounded-lg bg-tint" />
+            ) : (
+              <select
+                value={branchId}
+                onChange={(e) => setBranchId(e.target.value)}
+                className="w-full rounded-lg border border-tint px-3 py-2"
+                required
+              >
+                <option value="">Select branch</option>
+                {branches.map((b) => <option key={b.id} value={b.id}>{b.name} — {b.address}</option>)}
+              </select>
+            )}
 
             {hasBranchDetails && (
               <div className="rounded-lg border border-tint bg-tint/40 p-3 text-sm text-ink/70">
@@ -245,17 +276,27 @@ export default function CheckoutPage() {
               className="w-full rounded-lg border border-tint px-3 py-2"
             />
 
-            <label className="flex items-center gap-2 text-sm text-ink/70">
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="accent-brand"
-              />
-              <span>
-                I agree to the <Link href="/terms" className="font-semibold text-brand underline">Terms of Service</Link> and confirm the details above are correct.
-              </span>
-            </label>
+            <div ref={termsRef}>
+              <label className="flex items-center gap-2 text-sm text-ink/70">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => {
+                    setAgreedToTerms(e.target.checked);
+                    if (e.target.checked) setTermsError(false);
+                  }}
+                  className="accent-brand"
+                />
+                <span>
+                  I agree to the <Link href="/terms" className="font-semibold text-brand underline">Terms of Service</Link> and confirm the details above are correct.
+                </span>
+              </label>
+              {termsError && (
+                <p className="mt-1 animate-[shake_0.5s_ease-in-out] text-center text-xs text-accent">
+                  Please agree to the Terms of Service to continue.
+                </p>
+              )}
+            </div>
 
             <button
               type="submit"

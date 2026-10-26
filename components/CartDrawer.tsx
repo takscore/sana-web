@@ -7,12 +7,18 @@ import { useCart } from '@/context/CartContext';
 export default function CartDrawer() {
   const { items, updateQuantity, removeItem, subtotal, isDrawerOpen, closeDrawer } = useCart();
 
-  if (!isDrawerOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[80]">
+    <div
+      className={`fixed inset-0 z-[80] transition-opacity duration-300 ${
+        isDrawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+      }`}
+    >
       <div className="absolute inset-0 bg-black/40" onClick={closeDrawer} />
-      <div className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-surface shadow-xl">
+      <div
+        className={`absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-surface shadow-xl transition-transform duration-300 ease-in-out ${
+          isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         <div className="flex items-center justify-between border-b border-tint p-4">
           <p className="font-display text-lg font-bold text-ink">Your Cart</p>
           <button onClick={closeDrawer} aria-label="Close cart" className="text-ink/50 hover:text-ink">

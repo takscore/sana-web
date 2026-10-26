@@ -52,7 +52,7 @@ export default function HomePage() {
       <PromoCarousel />
       <FeatureCards />
 
-      <main className="mx-auto max-w-6xl p-6">
+      <main id="products-section" className="mx-auto max-w-6xl scroll-mt-44 p-6">
         <div className="mb-6 flex items-center gap-3">
           <h2 className="font-display text-xl font-bold text-ink">
             {query ? `Results for "${query}"` : sort === 'new' ? 'New & Trending' : 'Shop the essentials'}

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, Send } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { useSearch } from '@/context/SearchContext';
 import { scrollToFeatureCards } from '@/lib/scrollToFeatureCards';
@@ -122,7 +122,7 @@ const accountLinks = [
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
-          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={140} height={44}/>
+          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={128} height={30} className="h-11.8 w-auto"/>
           <p className="mt-2 text-sm text-cream/70">Malawi&apos;s Home of Wholesale Savings.</p>
           <div className="mt-4 flex gap-3">
             <Link href="https://www.facebook.com/p/Chipiku-Plus-100046368596770/" aria-label="Facebook" className="transition-transform duration-200 hover:scale-110">

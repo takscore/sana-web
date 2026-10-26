@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <header className="bg-brand px-6 py-4">
         <div className="mx-auto max-w-6xl flex justify-center">
           <Link href="/">
-            <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={130} height={40} priority />
+            <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={130} height={40} priority className="h-12 w-auto"/>
           </Link>
         </div>
       </header>

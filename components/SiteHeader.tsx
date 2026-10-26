@@ -45,7 +45,7 @@ export default function SiteHeader() {
     <header className="bg-brand">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-4">
         <Link href="/" onClick={handleLogoClick} className="shrink-0">
-          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={140} height={44} priority/>
+          <Image src="/chipiku-logo.png" alt="Chipiku Plus" width={128} height={30} priority className="h-11.5 w-auto"/>
         </Link>
 
         <form onSubmit={handleSearch} className="order-3 w-full flex-1 sm:order-none sm:w-auto">
